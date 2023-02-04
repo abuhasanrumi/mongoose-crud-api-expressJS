@@ -5,8 +5,8 @@ const todoSchema = require('../schemas/todoSchema')
 const Todo = new mongoose.model("Todo", todoSchema)
 
 // Get all the todos
-router.get('/', async (req, res) => {
-    await Todo.find({ status: 'active' }, (err, data) => {
+router.get('/', (req, res) => {
+    Todo.find({ status: 'active' }, (err, data) => {
         if (err) {
             res.status(500).json({
                 error: "Server side error"
@@ -22,23 +22,22 @@ router.get('/', async (req, res) => {
 
 // Get a todo by id
 router.get('/:id', async (req, res) => {
-    await Todo.find({ _id: req.params.id }, (err, data) => {
-        if (err) {
-            res.status(500).json({
-                error: "Your input is not supported or invalid"
-            })
-        } else {
-            res.status(200).json({
-                result: data
-            })
-        }
-    }).clone()
+    try {
+        const data = await Todo.find({ _id: req.params.id })
+        res.status(200).json({
+            result: data
+        })
+    } catch {
+        res.status(500).json({
+            error: "Your input is not supported or invalid"
+        })
+    }
 })
 
 // post a todo
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
     const newTodo = new Todo(req.body)
-    await newTodo.save((err) => {
+    newTodo.save((err) => {
         if (err) {
             res.status(500).json({
                 error: "Your input is not supported or invalid"
@@ -52,8 +51,8 @@ router.post('/', async (req, res) => {
 })
 
 // post multiple todo
-router.post('/all', async (req, res) => {
-    await Todo.insertMany(req.body, (err) => {
+router.post('/all', (req, res) => {
+    Todo.insertMany(req.body, (err) => {
         if (err) {
             res.status(500).json({
                 error: "Your input is not supported or invalid"
@@ -67,8 +66,8 @@ router.post('/all', async (req, res) => {
 })
 
 // put todo
-router.put('/:id', async (req, res) => {
-    await Todo.findByIdAndUpdate({ _id: req.params.id }, {
+router.put('/:id', (req, res) => {
+    Todo.findByIdAndUpdate({ _id: req.params.id }, {
         $set: {
             status: "active"
         }
@@ -89,8 +88,8 @@ router.put('/:id', async (req, res) => {
 })
 
 // delete todo
-router.delete('/:id', async (req, res) => {
-    await Todo.deleteOne({ _id: req.params.id }, (err) => {
+router.delete('/:id', (req, res) => {
+    Todo.deleteOne({ _id: req.params.id }, (err) => {
         if (err) {
             res.status(500).json({
                 error: "Your input is not supported or invalid"
